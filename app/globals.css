@@ -2,32 +2,96 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+html,
+body {
+  height: 100vh;
 }
 
-@media (prefers-color-scheme: dark) {
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+@layer base {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    /* Name: Mustard color palette
+       Author: Ilias Ism
+       URL: https://gradient.page */
+
+    /* CSS: .bg-gradient { background: var(--gradient) } */
+    --gradient: #231557;
+    --background: 269 98.05% 98.42%;
+    --foreground: 269 6.1% 0.84%;
+
+    --muted: 269 6.1% 92.1%;
+    --muted-foreground: 269 3.05% 42.1%;
+
+    --popover: 269 41.2% 92.1%;
+    --popover-foreground: 269 6.1% 1.05%;
+
+    --card: 269 41.2% 92.1%;
+    --card-foreground: 269 6.1% 1.05%;
+
+    --border: 269 11.1% 89.84%;
+    --input: 269 11.1% 89.84%;
+
+    --primary: 269 61% 21%;
+    --primary-foreground: 269 1.22% 92.1%;
+
+    --secondary: 269 3.05% 96.05%;
+    --secondary-foreground: 269 4.66% 12.1%;
+
+    --accent: 269 3.05% 96.05%;
+    --accent-foreground: 269 4.66% 12.1%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --ring: 269 61% 21%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+   --gradient: #3d3393;
+
+    --background: 262 31.849999999999998% 3.12%;
+    --foreground: 262 4.9% 96.95%;
+
+    --muted: 262 24.5% 11.700000000000001%;
+    --muted-foreground: 262 4.9% 53.9%;
+
+    --popover: 262 55.2% 5.07%;
+    --popover-foreground: 262 4.9% 96.95%;
+
+    --card: 262 55.2% 5.07%;
+    --card-foreground: 262 4.9% 96.95%;
+
+    --border: 262 24.5% 11.700000000000001%;
+    --input: 262 24.5% 11.700000000000001%;
+
+    --primary: 262 49% 39%;
+    --primary-foreground: 262 4.9% 96.95%;
+
+    --secondary: 262 24.5% 11.700000000000001%;
+    --secondary-foreground: 262 4.9% 96.95%;
+
+    --accent: 262 24.5% 11.700000000000001%;
+    --accent-foreground: 262 4.9% 96.95%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 262 4.9% 96.95%;
+
+    --ring: 262 49% 39%;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
