@@ -24,7 +24,7 @@ import {
   AlertDialogCancel,
 } from "../ui/alert-dialog";
 import { NumberInput } from "@tremor/react";
-import Loading from "../Loading";
+import Loading from "../global/Loading";
 import {
   Card,
   CardContent,
@@ -43,7 +43,7 @@ import {
 } from "../ui/form";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import FileUpload from "../file-upload";
+import FileUpload from "@/components/global/file-upload";
 import { Input } from "../ui/input";
 import { Switch } from "../ui/switch";
 import { Button } from "../ui/button";
@@ -92,6 +92,7 @@ const AgencyDetails: React.FC<AgencyDetailsProps> = ({ data }) => {
     }
   }, [data]);
   const isLoading = form.formState.isSubmitting;
+  const toastMsg = data ? "Updated Agency" : "Created Agency";
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       let newUserData;
@@ -106,7 +107,7 @@ const AgencyDetails: React.FC<AgencyDetailsProps> = ({ data }) => {
               country: values.country,
               line1: values.address,
               postal_code: values.zipCode,
-              state: values.state,
+              state: values.zipCode,
             },
             name: values.name,
           },
@@ -115,7 +116,7 @@ const AgencyDetails: React.FC<AgencyDetailsProps> = ({ data }) => {
             country: values.country,
             line1: values.address,
             postal_code: values.zipCode,
-            state: values.state,
+            state: values.zipCode,
           },
         };
 
@@ -133,31 +134,30 @@ const AgencyDetails: React.FC<AgencyDetailsProps> = ({ data }) => {
 
       newUserData = await initUser({ role: "AGENCY_OWNER" });
       // if (!data?.customerId && !custId) return;
-      if (!data?.id) {
-        const response = await upsertAgency({
-          id: data?.id ? data.id : v4(),
-          address: values.address,
-          agencyLogo: values.agencyLogo,
-          city: values.city,
-          companyPhone: values.companyPhone,
-          country: values.country,
-          name: values.name,
-          state: values.state,
-          whiteLabel: values.whiteLabel,
-          zipCode: values.zipCode,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          companyEmail: values.companyEmail,
-          connectAccountId: "",
-          goal: 5,
-        });
-        toast({
-          title: "Created Agency",
-        });
-        if (data?.id) return router.refresh();
-        if (response) {
-          return router.refresh();
-        }
+
+      const response = await upsertAgency({
+        id: data?.id ? data.id : v4(),
+        address: values.address,
+        agencyLogo: values.agencyLogo,
+        city: values.city,
+        companyPhone: values.companyPhone,
+        country: values.country,
+        name: values.name,
+        state: values.state,
+        whiteLabel: values.whiteLabel,
+        zipCode: values.zipCode,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        companyEmail: values.companyEmail,
+        connectAccountId: "",
+        goal: 5,
+      });
+      toast({
+        title: toastMsg,
+      });
+      if (data?.id) return router.refresh();
+      if (response) {
+        return router.refresh();
       }
     } catch (error) {
       console.log(error);

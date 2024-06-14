@@ -54,7 +54,7 @@ body {
   }
 
   .dark {
-   --gradient: #3d3393;
+    --gradient: #3d3393;
 
     --background: 262 31.849999999999998% 3.12%;
     --foreground: 262 4.9% 96.95%;
@@ -94,4 +94,19 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  display: none;
+}
+
+.overflow-auto::-webkit-scrollbar {
+  display: none;
+}
+
+.overflow-scroll::-webkit-scrollbar {
+  display: none;
+}
+.overflow-x-scroll::-webkit-scrollbar {
+  display: none;
 }

@@ -3,7 +3,7 @@
 import { clerkClient, currentUser } from "@clerk/nextjs";
 import { db } from "./db";
 import { redirect } from "next/navigation";
-import { Agency, Plan, SubAccount, User } from "@prisma/client";
+import { Agency, Plan, Role, SubAccount, User } from "@prisma/client";
 import { v4 } from "uuid";
 
 export const getAuthUserDetails = async () => {
@@ -392,5 +392,126 @@ export const upsertSubAccount = async (subAccount: SubAccount) => {
       },
     },
   });
+  return rsp;
+};
+
+export const getUserPermissions = async (userId: string) => {
+  const rsp = await db.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      Permissions: {
+        include: {
+          SubAccount: true,
+        },
+      },
+    },
+  });
+  return rsp;
+};
+
+export const updateUser = async (user: Partial<User>) => {
+  const rsp = await db.user.update({
+    where: {
+      email: user.email,
+    },
+    data: { ...user },
+  });
+  await clerkClient.users.updateUserMetadata(rsp.id, {
+    privateMetadata: {
+      role: rsp.role || "SUBACCOUNT_USER",
+    },
+  });
+  await clerkClient.users.updateUserProfileImage(rsp.id, {
+    file: await fetch(rsp.avatarUrl).then((res) => res.blob()),
+  });
+  return rsp;
+};
+
+export const changeUserPermission = async (
+  permissionId: string,
+  userEmail: string,
+  subAccountId: string,
+  permission: boolean
+) => {
+  try {
+    const rsp = await db.permissions.upsert({
+      where: {
+        id: permissionId,
+      },
+      update: { access: permission },
+      create: {
+        access: permission,
+        email: userEmail,
+        subAccountId: subAccountId,
+      },
+    });
+    return rsp;
+  } catch (err) {
+    console.log("🔴Could not change persmission", err);
+  }
+};
+
+export const getSubAccountDetails = async (subAccountId: string) => {
+  const rsp = await db.subAccount.findUnique({
+    where: {
+      id: subAccountId,
+    },
+  });
+  return rsp;
+};
+
+export const deleteSubAccount = async (subAccountId: string) => {
+  const rsp = await db.subAccount.delete({
+    where: {
+      id: subAccountId,
+    },
+  });
+  return rsp;
+};
+
+export const deleteUser = async (userId: string) => {
+  await clerkClient.users.updateUserMetadata(userId, {
+    privateMetadata: {
+      role: undefined,
+    },
+  });
+  const deletedUser = await db.user.delete({ where: { id: userId } });
+
+  return deletedUser;
+};
+
+export const getUser = async (id: string) => {
+  const user = await db.user.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  return user;
+};
+
+export const sendInvitation = async (
+  role: Role,
+  email: string,
+  agencyId: string
+) => {
+  const rsp = await db.invitation.create({
+    data: { email, agencyId, role },
+  });
+  try {
+    const invitation = await clerkClient.invitations.createInvitation({
+      emailAddress: email,
+      redirectUrl: process.env.NEXT_PUBLIC_URL,
+      publicMetadata: {
+        throughInvitation: true,
+        role,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
   return rsp;
 };

@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import { useToast } from "../ui/use-toast";
 import { useRouter } from "next/navigation";
 import { v4 } from "uuid";
-import Loading from "../Loading";
+import Loading from "../global/Loading";
 import {
   Card,
   CardContent,
@@ -24,7 +24,7 @@ import {
 } from "../ui/form";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import FileUpload from "../file-upload";
+import FileUpload from "@/components/global/file-upload";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useModal } from "@/providers/ModalProvider";
@@ -104,7 +104,7 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
       }
       await saveActivityLogsNotification({
         agencyId: rsp.agencyId,
-        description: `${userName} | update sub account | ${rsp.name}`,
+        description: `${userName} | updated sub account | ${rsp.name}`,
         subaccountId: rsp.id,
       });
       toast({

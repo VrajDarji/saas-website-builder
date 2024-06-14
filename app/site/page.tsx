@@ -13,8 +13,14 @@ import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
+  const router = useRouter();
+  useEffect(() => {
+    router.refresh();
+  }, []);
   return (
     <main>
       <section className="h-full w-full pt-36 relative flex items-center justify-center flex-col">

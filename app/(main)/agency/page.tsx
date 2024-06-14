@@ -1,4 +1,4 @@
-import Unauthorized from "@/components/Unauthorized";
+import Unauthorized from "@/components/global/Unauthorized";
 import AgencyDetails from "@/components/forms/AgencyDetails";
 import { getAuthUserDetails, verifyAndAcceptInvitation } from "@/lib/queries";
 import { currentUser } from "@clerk/nextjs";

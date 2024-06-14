@@ -1,8 +1,8 @@
 import { FileIcon, X } from "lucide-react";
 import Image from "next/image";
 import React from "react";
-import { Button } from "./ui/button";
-import { UploadButton, UploadDropzone } from "@/lib/uploadthing";
+import { Button } from "@/components/ui/button";
+import { UploadDropzone } from "@/lib/uploadthing";
 
 interface FileUploadProps {
   apiEndpoint: "agencyLogo" | "avatar" | "subaccountLogo";
