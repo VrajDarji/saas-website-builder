@@ -1,5 +1,6 @@
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Unauthorized from "@/components/global/Unauthorized";
+import BlurPage from "@/components/global/blur-page";
 import Infobar from "@/components/global/infobar";
 import {
   getAuthUserDetails,
@@ -68,7 +69,9 @@ const layout = async ({ children, params }: Props) => {
           role={user.privateMetadata?.role as Role}
           subAccountId={params.subAccountId}
         />
-        <div className="relative">{children}</div>
+        <div className="relative">
+          <BlurPage>{children}</BlurPage>
+        </div>
       </div>
     </div>
   );

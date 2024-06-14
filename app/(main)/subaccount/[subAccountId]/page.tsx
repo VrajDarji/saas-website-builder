@@ -1,5 +1,5 @@
 import React from "react";
-import BlurPage from "@/components/global/blur-page";
+
 type Props = {
   params: {
     subAccountId: string;
@@ -7,7 +7,7 @@ type Props = {
 };
 
 const page = ({ params }: Props) => {
-  return <BlurPage>{params.subAccountId}</BlurPage>;
+  return <div>{params.subAccountId}</div>;
 };
 
 export default page;

@@ -504,11 +504,13 @@ export const sendInvitation = async (
     const invitation = await clerkClient.invitations.createInvitation({
       emailAddress: email,
       redirectUrl: process.env.NEXT_PUBLIC_URL,
+      ignoreExisting: true,
       publicMetadata: {
         throughInvitation: true,
         role,
       },
     });
+    console.log(invitation);
   } catch (err) {
     console.log(err);
     throw err;
