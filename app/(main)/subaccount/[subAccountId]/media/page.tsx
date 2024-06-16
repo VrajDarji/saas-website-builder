@@ -1,9 +1,16 @@
-import React from 'react'
+import MediaComponent from "@/components/media/media-component";
+import { getMedia } from "@/lib/queries";
+import React from "react";
 
-const page = () => {
-  return (
-    <div>page</div>
-  )
-}
+type Props = {
+  params: {
+    subAccountId: string;
+  };
+};
 
-export default page
+const page = async ({ params }: Props) => {
+  const data = await getMedia(params.subAccountId);
+  return <MediaComponent data={data} subAccountId={params.subAccountId} />;
+};
+
+export default page;

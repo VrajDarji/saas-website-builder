@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning={true}>
+    <html lang="en" suppressHydrationWarning >
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <body className={inter.className}>
           <ModalProvider>
