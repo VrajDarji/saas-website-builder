@@ -107,7 +107,7 @@ const AgencyDetails: React.FC<AgencyDetailsProps> = ({ data }) => {
               country: values.country,
               line1: values.address,
               postal_code: values.zipCode,
-              state: values.zipCode,
+              state: values.state,
             },
             name: values.name,
           },
@@ -116,27 +116,29 @@ const AgencyDetails: React.FC<AgencyDetailsProps> = ({ data }) => {
             country: values.country,
             line1: values.address,
             postal_code: values.zipCode,
-            state: values.zipCode,
+            state: values.state,
           },
         };
+        console.log(bodyData);
 
-        // const customerResponse = await fetch("/api/stripe/create-customer", {
-        //   method: "POST",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify(bodyData),
-        // });
-        // const customerData: { customerId: string } =
-        //   await customerResponse.json();
-        // custId = customerData.customerId;
+        const customerResponse = await fetch("/api/stripe/create-customer", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(bodyData),
+        });
+        const customerData: { customerId: string } =
+          await customerResponse.json();
+        custId = customerData.customerId;
       }
 
       newUserData = await initUser({ role: "AGENCY_OWNER" });
-      // if (!data?.customerId && !custId) return;
+      if (!data?.customerId && !custId) return;
 
       const response = await upsertAgency({
         id: data?.id ? data.id : v4(),
+        customerId: data?.customerId || custId || "",
         address: values.address,
         agencyLogo: values.agencyLogo,
         city: values.city,

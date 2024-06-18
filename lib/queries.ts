@@ -10,6 +10,7 @@ import {
   Prisma,
   Role,
   SubAccount,
+  Tag,
   Ticket,
   User,
 } from "@prisma/client";
@@ -512,25 +513,26 @@ export const sendInvitation = async (
   email: string,
   agencyId: string
 ) => {
-  const rsp = await db.invitation.create({
-    data: { email, agencyId, role },
-  });
   try {
     const invitation = await clerkClient.invitations.createInvitation({
       emailAddress: email,
       redirectUrl: process.env.NEXT_PUBLIC_URL,
       ignoreExisting: true,
+      notify: true,
       publicMetadata: {
         throughInvitation: true,
         role,
       },
     });
+    const rsp = await db.invitation.create({
+      data: { email, agencyId, role },
+    });
+    return rsp;
     console.log(invitation);
   } catch (err) {
     console.log(err);
     throw err;
   }
-  return rsp;
 };
 
 export const getMedia = async (subAccountId: string) => {
@@ -711,4 +713,158 @@ export const upsertLane = async (lane: Prisma.LaneUncheckedCreateInput) => {
   });
 
   return response;
+};
+
+export const deleteLane = async (LaneId: string) => {
+  const rsp = await db.lane.delete({
+    where: {
+      id: LaneId,
+    },
+  });
+  return rsp;
+};
+
+export const _getTicketsWithAllRelations = async (laneId: string) => {
+  const response = await db.ticket.findMany({
+    where: { laneId: laneId },
+    include: {
+      Assigned: true,
+      Customer: true,
+      Lane: true,
+      Tags: true,
+    },
+  });
+  return response;
+};
+
+export const getSubAccountTeamMembers = async (subAccountId: string) => {
+  const rsp = await db.user.findMany({
+    where: {
+      Agency: {
+        SubAccount: {
+          some: {
+            id: subAccountId,
+          },
+        },
+      },
+      role: "SUBACCOUNT_USER",
+      Permissions: {
+        some: {
+          subAccountId: subAccountId,
+          access: true,
+        },
+      },
+    },
+  });
+  return rsp;
+};
+
+export const searchContacts = async (searchTerms: string) => {
+  const rsp = await db.contact.findMany({
+    where: {
+      name: {
+        contains: searchTerms,
+      },
+    },
+  });
+  return rsp;
+};
+
+export const upsertTicket = async (
+  ticket: Prisma.TicketUncheckedCreateInput,
+  tags: Tag[]
+) => {
+  let order: number;
+  if (!ticket.order) {
+    const tickets = await db.ticket.findMany({
+      where: {
+        laneId: ticket.laneId,
+      },
+    });
+    order = tickets.length;
+  } else {
+    order = ticket.order;
+  }
+
+  const rsp = await db.ticket.upsert({
+    where: {
+      id: ticket.id,
+    },
+    update: {
+      ...ticket,
+      Tags: { set: tags },
+    },
+    create: {
+      ...ticket,
+      Tags: {
+        connect: tags,
+      },
+      order,
+    },
+    include: {
+      Assigned: true,
+      Customer: true,
+      Tags: true,
+      Lane: true,
+    },
+  });
+  return rsp;
+};
+
+export const upsertTag = async (
+  subAccountId: string,
+  tag: Prisma.TagUncheckedCreateInput
+) => {
+  const rsp = await db.tag.upsert({
+    where: {
+      id: tag.id || v4(),
+      subAccountId: subAccountId,
+    },
+    update: tag,
+    create: { ...tag, subAccountId: subAccountId },
+  });
+  return rsp;
+};
+
+export const getTagsForSubaccount = async (subAccountId: string) => {
+  const rsp = await db.subAccount.findUnique({
+    where: {
+      id: subAccountId,
+    },
+    select: {
+      Tags: true,
+    },
+  });
+  return rsp;
+};
+
+export const deleteTag = async (tagId: string) => {
+  const rsp = await db.tag.delete({
+    where: {
+      id: tagId,
+    },
+  });
+  return rsp;
+};
+
+export const upsertContact = async (
+  contact: Prisma.ContactUncheckedCreateInput
+) => {
+  const rsp = await db.contact.upsert({
+    where: {
+      id: contact.id || v4(),
+    },
+    update: contact,
+    create: contact,
+  });
+  return rsp;
+};
+
+export const deleteTicket = async (ticketId: string) => {
+  const rsp = await db.ticket.delete({
+    where: {
+      id: ticketId,
+    },
+  });
+  return rsp;
 };

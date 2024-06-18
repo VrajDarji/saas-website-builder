@@ -24,6 +24,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { MoreVertical, PlusCircleIcon, Edit, Trash } from "lucide-react";
+import { useModal } from "@/providers/ModalProvider";
+import { useRouter } from "next/navigation";
+import CustomModal from "@/components/modal/custom-modal";
+import LaneForm from "@/components/forms/lane-form";
+import { deleteLane, saveActivityLogsNotification } from "@/lib/queries";
+import { useToast } from "@/components/ui/use-toast";
+import TicketForm from "@/components/forms/ticket-form";
+import PipelineTicket from "./pipeline-ticket";
 
 interface PipelineLaneProps {
   setAllTickets: Dispatch<SetStateAction<TicketWithTags>>;
@@ -44,11 +52,17 @@ const PipelineLane: React.FC<PipelineLaneProps> = ({
   subaccountId,
   index,
 }) => {
+  const { setOpen } = useModal();
+  const router = useRouter();
+  const { toast } = useToast();
+
   const amt = new Intl.NumberFormat(undefined, {
     style: "currency",
     currency: "USD",
   });
+
   const randomColor = `#${Math.random().toString(16).slice(2, 8)}`;
+
   const laneAmt = useMemo(() => {
     console.log(tickets);
     return tickets.reduce(
@@ -56,6 +70,57 @@ const PipelineLane: React.FC<PipelineLaneProps> = ({
       0
     );
   }, [tickets]);
+
+  const addNewTicket = (ticket: TicketWithTags[0]) => {
+    setAllTickets([...allTickets, ticket]);
+  };
+
+  const handleCreateTicket = () => {
+    setOpen(
+      <CustomModal
+        title="Create a Ticket"
+        subHeading="Tickets are a great way to keep track of tasks"
+      >
+        <TicketForm
+          laneId={laneDetails.id}
+          subAccountId={subaccountId}
+          getNewTicket={addNewTicket}
+        />
+      </CustomModal>
+    );
+  };
+
+  const handleEditLane = () => {
+    setOpen(
+      <CustomModal title="Edit Lane Details" subHeading="">
+        <LaneForm pipelineId={pipelineId} defaultData={laneDetails} />
+      </CustomModal>
+    );
+  };
+
+  const handelDeleteLane = async () => {
+    try {
+      const rsp = await deleteLane(laneDetails.id);
+      await saveActivityLogsNotification({
+        agencyId: undefined,
+        description: `Deleted a Lane | ${rsp.name}`,
+        subaccountId,
+      });
+      toast({
+        title: "Success",
+        description: "Deleted Lane",
+      });
+      router.refresh();
+    } catch (error) {
+      console.log(error);
+      toast({
+        variant: "destructive",
+        title: "Oops..",
+        description: "Something went wrong",
+      });
+    }
+  };
+
   return (
     <Draggable
       draggableId={laneDetails.id.toString()}
@@ -124,15 +189,14 @@ const PipelineLane: React.FC<PipelineLaneProps> = ({
                           className="mt-2"
                         >
                           {tickets.map((ticket, index) => (
-                            // <PipelineTicket
-                            //   allTickets={allTickets}
-                            //   setAllTickets={setAllTickets}
-                            //   subaccountId={subaccountId}
-                            //   ticket={ticket}
-                            //   key={ticket.id.toString()}
-                            //   index={index}
-                            // />
-                            <p key={ticket.id}>Ticket</p>
+                            <PipelineTicket
+                              allTickets={allTickets}
+                              setAllTickets={setAllTickets}
+                              subaccountId={subaccountId}
+                              ticket={ticket}
+                              key={ticket.id.toString()}
+                              index={index}
+                            />
                           ))}
                           {provided.placeholder}
                         </div>
@@ -143,8 +207,8 @@ const PipelineLane: React.FC<PipelineLaneProps> = ({
                   <DropdownMenuContent>
                     <DropdownMenuLabel>Options</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <AlertDialogTrigger>
-                      <DropdownMenuItem className="flex items-center gap-2">
+                    <AlertDialogTrigger className="w-full">
+                      <DropdownMenuItem className="flex items-center gap-2 w-full">
                         <Trash size={15} />
                         Delete
                       </DropdownMenuItem>
@@ -152,14 +216,14 @@ const PipelineLane: React.FC<PipelineLaneProps> = ({
 
                     <DropdownMenuItem
                       className="flex items-center gap-2"
-                      onClick={() => {}}
+                      onClick={handleEditLane}
                     >
                       <Edit size={15} />
                       Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="flex items-center gap-2"
-                      onClick={() => {}}
+                      onClick={handleCreateTicket}
                     >
                       <PlusCircleIcon size={15} />
                       Create Ticket
@@ -180,7 +244,7 @@ const PipelineLane: React.FC<PipelineLaneProps> = ({
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       className="bg-destructive"
-                      onClick={() => {}}
+                      onClick={handelDeleteLane}
                     >
                       Continue
                     </AlertDialogAction>

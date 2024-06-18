@@ -14,9 +14,11 @@ import {
   getMedia,
   getPipelineDetails,
   getTicketsWithTags,
+  _getTicketsWithAllRelations,
 } from "./queries";
 import { db } from "./db";
 import * as z from "zod";
+import Stripe from "stripe";
 
 export type NotificationWithUser =
   | ({
@@ -91,3 +93,44 @@ export type TicketWithTags = Prisma.PromiseReturnType<
 export const LaneFormSchema = z.object({
   name: z.string().min(1),
 });
+
+const currencyNumberRegex = /^\d+(\.\d{1,2})?$/;
+
+export const TicketFormSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  value: z.string().refine((value) => currencyNumberRegex.test(value), {
+    message: "Value must be a valid price.",
+  }),
+});
+
+export type TicketDetails = Prisma.PromiseReturnType<
+  typeof _getTicketsWithAllRelations
+>;
+export const ContactUserFormSchema = z.object({
+  name: z.string().min(1, "Required"),
+  email: z.string().email(),
+});
+
+export type Address = {
+  city: string;
+  country: string;
+  line1: string;
+  postal_code: string;
+  state: string;
+};
+
+export type ShippingInfo = {
+  address: Address;
+  name: string;
+};
+
+export type StripeCustomerType = {
+  email: string;
+  name: string;
+  shipping: ShippingInfo;
+  address: Address;
+};
+
+export type PriceList = Stripe.ApiList<Stripe.Price>;
+

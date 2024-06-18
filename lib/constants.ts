@@ -45,7 +45,7 @@ export const pricingCards = [
     duration: "month",
     highlight: "Key features",
     features: ["Rebilling", "24/7 Support team"],
-    priceId: "price_1OYxkqFj9oKEERu1KfJGWxgN",
+    priceId: "price_1PSMqkGpi1UZMbZF3B49DHW6",
   },
   {
     title: "Basic",
@@ -54,9 +54,14 @@ export const pricingCards = [
     duration: "month",
     highlight: "Everything in Starter, plus",
     features: ["Unlimited Sub accounts", "Unlimited Team members"],
-    priceId: "price_1OYxkqFj9oKEERu1NbKUxXxN",
+    priceId: "price_1PSMpfGpi1UZMbZFYQ4oz4TC",
   },
 ];
+
+export const addOnProducts = [
+  { title: "Priority Support", id: "prod_PNjJAE2EpP16pn" },
+];
+
 export const icons = [
   {
     value: "chart",
@@ -204,3 +209,24 @@ export const icons = [
     path: ClipboardIcon,
   },
 ];
+export type EditorBtns =
+  | "text"
+  | "container"
+  | "section"
+  | "contactForm"
+  | "paymentForm"
+  | "link"
+  | "2Col"
+  | "video"
+  | "__body"
+  | "image"
+  | null
+  | "3Col";
+
+export const defaultStyles: React.CSSProperties = {
+  backgroundPosition: "center",
+  objectFit: "cover",
+  backgroundRepeat: "no-repeat",
+  textAlign: "left",
+  opacity: "100%",
+};

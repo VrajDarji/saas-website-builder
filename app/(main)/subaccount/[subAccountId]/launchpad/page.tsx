@@ -11,6 +11,8 @@ import {
 import { CheckCircleIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { getStripeOAuthLink } from "@/lib/utils";
+import { stripe } from "@/lib/stripe";
 
 type Props = {
   params: {
@@ -43,6 +45,29 @@ const page = async ({ params, searchParams }: Props) => {
     subAccountDetails.name &&
     subAccountDetails.state;
 
+  const stripeOAuthLink = getStripeOAuthLink(
+    "subaccount",
+    `launchpad___${subAccountDetails.id}`
+  );
+
+  let connectedStripeAccount = false;
+  if (searchParams.code) {
+    if (!subAccountDetails.connectAccountId) {
+      try {
+        const response = await stripe.oauth.token({
+          grant_type: "authorization_code",
+          code: searchParams.code,
+        });
+        await db.subAccount.update({
+          where: { id: params.subAccountId },
+          data: { connectAccountId: response.stripe_user_id },
+        });
+        connectedStripeAccount = true;
+      } catch (error) {
+        console.log("🔴 Could not connect stripe account", error);
+      }
+    }
+  }
   return (
     <div className="flex flex-col justify-center items-center">
       <div className="w-full h-full max-w-[800px]">
@@ -81,7 +106,7 @@ const page = async ({ params, searchParams }: Props) => {
                   to run payouts.
                 </p>
               </div>
-              {subAccountDetails.connectAccountId ? (
+              {subAccountDetails.connectAccountId || connectedStripeAccount ? (
                 <CheckCircleIcon
                   size={50}
                   className=" text-primary p-2 flex-shrink-0"
@@ -89,7 +114,7 @@ const page = async ({ params, searchParams }: Props) => {
               ) : (
                 <Link
                   className="bg-primary py-2 px-4 rounded-md text-white"
-                  href={""}
+                  href={stripeOAuthLink}
                 >
                   Start
                 </Link>

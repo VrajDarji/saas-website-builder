@@ -11,6 +11,7 @@ import { redirect } from "next/navigation";
 import React from "react";
 import PipelineInfobar from "./components/pipeline-infobar";
 import PipelineView from "./components/pipeline-view";
+import PipelineSettings from "./components/pipeline-settings";
 
 type Props = {
   params: {
@@ -60,7 +61,11 @@ const page = async ({ params }: Props) => {
         />
       </TabsContent>
       <TabsContent value="settings">
-        <p>Settings</p>
+        <PipelineSettings
+          subaccountId={params.subAccountId}
+          pipelineId={params.pipelineId}
+          pipelines={pipelines}
+        />
       </TabsContent>
     </Tabs>
   );
